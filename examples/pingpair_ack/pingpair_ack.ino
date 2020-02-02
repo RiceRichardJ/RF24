@@ -20,7 +20,7 @@
 #include "printf.h"
 
 // Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 
-RF24 radio(7,8);
+RF24 radio(24,25);
 
 // Topology
 const uint64_t pipes[2] = { 0xABCDABCD71LL, 0x544d52687CLL };              // Radio pipe addresses for the 2 nodes to communicate.
