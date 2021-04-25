@@ -17,6 +17,7 @@
 #define _SPI spi
 
 #if defined SPI_HAS_TRANSACTION && !defined SPI_UART && !defined SOFTSPI
+    #define WHAT_THE_FUCK
     #define RF24_SPI_TRANSACTIONS
 #endif
 // GCC a Arduino Missing

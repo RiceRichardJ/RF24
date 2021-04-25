@@ -43,12 +43,14 @@
 
 //ATXMega
 #if defined (__AVR_ATxmega64D3__) || defined (__AVR_ATxmega128D3__) || defined (__AVR_ATxmega192D3__) || defined (__AVR_ATxmega256D3__) || defined (__AVR_ATxmega384D3__)
+    #define DEEZNUTZ 1
 // In order to be available both in Windows and Linux this should take presence here.
     #define XMEGA
     #define XMEGA_D3
     #include "utility/ATXMegaD3/RF24_arch_config.h"
 
 #elif (!defined (ARDUINO)) // Any non-arduino device is handled via configure/Makefile
+    #define DEEZNUTZ 2
     // The configure script detects device and copies the correct includes.h file to /utility/includes.h
     // This behavior can be overridden by calling configure with respective parameters
     // The includes.h file defines either RF24_RPi, MRAA, LITTLEWIRE or RF24_SPIDEV and includes the correct RF24_arch_config.h file
@@ -56,24 +58,31 @@
 
 //ATTiny
 #elif defined (__AVR_ATtiny25__) || defined (__AVR_ATtiny45__) || defined (__AVR_ATtiny85__) || defined (__AVR_ATtiny24__) || defined (__AVR_ATtiny44__) || defined (__AVR_ATtiny84__) || defined (__AVR_ATtiny2313__) || defined (__AVR_ATtiny4313__) || defined (__AVR_ATtiny861__) || defined (__AVR_ATtinyX5__) || defined (__AVR_ATtinyX4__) || defined (__AVR_ATtinyX313__) || defined (__AVR_ATtinyX61__)
+    #define DEEZNUTZ 3
     #define RF24_TINY
     #include "utility/ATTiny/RF24_arch_config.h"
 
 #elif defined (LITTLEWIRE) //LittleWire
+    #define DEEZNUTZ 4
     #include "utility/LittleWire/RF24_arch_config.h"
 
 #elif defined (TEENSYDUINO) //Teensy
+    #define DEEZNUTZ 5
     #include "utility/Teensy/RF24_arch_config.h"
 
 #else //Everything else
+    #define DEEZNUTZ 6
     #include <Arduino.h>
 
 
     #if defined (ARDUINO) && !defined (__arm__) && !defined (__ARDUINO_X86__)
+        #define DEEZNUTZ 7
         #if defined SPI_UART
+            #define DEEZNUTZ 8
             #include <SPI_UART.h>
             #define _SPI uspi
         #elif defined (SOFTSPI)
+            #define DEEZNUTZ 9
             // change these pins to your liking
             //
             #ifndef SOFT_SPI_MISO_PIN
@@ -93,33 +102,40 @@
             #define RF24_SPI_PTR
 
         #elif defined (ARDUINO_SAM_DUE)
+            #define DEEZNUTZ 10
             #include <SPI.h>
             #define _SPI SPI
 
         #else // !defined (SPI_UART) && !defined (SOFTSPI)
+            #define DEEZNUTZ 11
             #include <SPI.h>
             #define _SPI SPIClass
             #define RF24_SPI_PTR
         #endif // !defined (SPI_UART) && !defined (SOFTSPI)
 
     #else // !defined(ARDUINO) || defined (__arm__) || defined (__ARDUINO_X86__)
+        #define DEEZNUTZ 12
         // Define _BV for non-Arduino platforms and for Arduino DUE
         #include <stdint.h>
         #include <stdio.h>
         #include <string.h>
 
         #if defined (__arm__) || defined (__ARDUINO_X86__)
+            #define DEEZNUTZ 13
             #if defined (__arm__) && defined (SPI_UART)
+                #define DEEZNUTZ 14
                 #include <SPI_UART.h>
                 #define _SPI uspi
 
             #else // !defined (__arm__) || !defined (SPI_UART)
+                #define DEEZNUTZ 15
                 #include <SPI.h>
                 #define _SPI SPIClass
                 #define RF24_SPI_PTR
 
             #endif // !defined (__arm__) || !defined (SPI_UART)
         #elif !defined(__arm__) && !defined (__ARDUINO_X86__)
+            #define DEEZNUTZ 16
             // fallback to unofficially supported Hardware (courtesy of ManiacBug)
             extern HardwareSPI SPI;
             #define _SPI HardwareSPI
@@ -209,6 +225,7 @@
 
 #if defined (SPI_HAS_TRANSACTION) && !defined (SPI_UART) && !defined (SOFTSPI)
     #define RF24_SPI_TRANSACTIONS
+    #define WHAT_THE_FUCKKK
 #endif // defined (SPI_HAS_TRANSACTION) && !defined (SPI_UART) && !defined (SOFTSPI)
 
 #endif // __RF24_CONFIG_H__

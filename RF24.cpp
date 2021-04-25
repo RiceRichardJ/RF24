@@ -15,71 +15,96 @@
 
 void RF24::csn(bool mode)
 {
+    Serial.println("csn");
+    #if defined(ARDUINO)
+        Serial.println(" > defined(ARDUINO)");
+    #endif
+    #if defined(RF24_SPI_TRANSACTIONS)
+        Serial.println(" > defined(RF24_SPI_TRANSACTIONS)");
+    #endif
+    #if !defined(RF24_SPI_TRANSACTIONS)
+        Serial.println(" > !defined(RF24_SPI_TRANSACTIONS)");
+    #endif
+
     #if defined(RF24_TINY)
-    if (ce_pin != csn_pin) {
-        digitalWrite(csn_pin, mode);
-    }
-    else {
-        if (mode == HIGH) {
-            PORTB |= (1<<PINB2);  	                       // SCK->CSN HIGH
-            delayMicroseconds(RF24_CSN_SETTLE_HIGH_DELAY); // allow csn to settle.
+        Serial.println("csn: RF24_TINY");
+        if (ce_pin != csn_pin) {
+            digitalWrite(csn_pin, mode);
         }
         else {
-            PORTB &= ~(1<<PINB2);	                      // SCK->CSN LOW
-            delayMicroseconds(RF24_CSN_SETTLE_LOW_DELAY); // allow csn to settle
+            if (mode == HIGH) {
+                PORTB |= (1<<PINB2);  	                       // SCK->CSN HIGH
+                delayMicroseconds(RF24_CSN_SETTLE_HIGH_DELAY); // allow csn to settle.
+            }
+            else {
+                PORTB &= ~(1<<PINB2);	                      // SCK->CSN LOW
+                delayMicroseconds(RF24_CSN_SETTLE_LOW_DELAY); // allow csn to settle
+            }
         }
-    }
-    // Return, CSN toggle complete
-    return;
+        // Return, CSN toggle complete
+        return;
 
-    #elif defined(ARDUINO) && !defined(RF24_SPI_TRANSACTIONS)
+    // #elif defined(ARDUINO) && !defined(RF24_SPI_TRANSACTIONS)
+    #elif defined(ARDUINO)
+        Serial.println("csn: ARDUINO, no spi transactions");
     // Minimum ideal SPI bus speed is 2x data rate
     // If we assume 2Mbs data rate and 16Mhz clock, a
     // divider of 4 is the minimum we want.
     // CLK:BUS 8Mhz:2Mhz, 16Mhz:4Mhz, or 20Mhz:5Mhz
 
         #if !defined(SOFTSPI)
+            Serial.println("csn: no SOFTSPI");
         // applies to SPI_UART and inherent hardware SPI
             #if defined (RF24_SPI_PTR)
-    _spi->setBitOrder(MSBFIRST);
-    _spi->setDataMode(SPI_MODE0);
+                Serial.println("csn: RF24_SPI_PTR");
+                _spi->setBitOrder(MSBFIRST);
+                _spi->setDataMode(SPI_MODE0);
 
                 #if !defined(F_CPU) || F_CPU < 20000000
-    _spi->setClockDivider(SPI_CLOCK_DIV2);
+                    Serial.println("A");
+                    _spi->setClockDivider(SPI_CLOCK_DIV2);
                 #elif F_CPU < 40000000
-    _spi->setClockDivider(SPI_CLOCK_DIV4);
+                    Serial.println("B");
+                    _spi->setClockDivider(SPI_CLOCK_DIV4);
                 #elif F_CPU < 80000000
-    _spi->setClockDivider(SPI_CLOCK_DIV8);
-                #elif F_CPU < 160000000
-    _spi->setClockDivider(SPI_CLOCK_DIV16);
+                    Serial.println("C");
+                    _spi->setClockDivider(SPI_CLOCK_DIV8);
+                #elif F_CPU < 160000000             
+                    Serial.println("D");
+                    _spi->setClockDivider(SPI_CLOCK_DIV16);
                 #elif F_CPU < 320000000
-    _spi->setClockDivider(SPI_CLOCK_DIV32);
+                    Serial.println("E");
+                    _spi->setClockDivider(SPI_CLOCK_DIV32);
                 #elif F_CPU < 640000000
-    _spi->setClockDivider(SPI_CLOCK_DIV64);
+                    Serial.println("F");
+                    _spi->setClockDivider(SPI_CLOCK_DIV64);
                 #elif F_CPU < 1280000000
-    _spi->setClockDivider(SPI_CLOCK_DIV128);
+                    Serial.println("G");
+                    _spi->setClockDivider(SPI_CLOCK_DIV128);
                 #else // F_CPU >= 1280000000
+                    Serial.println("H");
                     #error "Unsupported CPU frequency. Please set correct SPI divider."
                 #endif // F_CPU to SPI_CLOCK_DIV translation
 
             #else // !defined(RF24_SPI_PTR)
-    _SPI.setBitOrder(MSBFIRST);
-    _SPI.setDataMode(SPI_MODE0);
+                Serial.println("csn: no RF24_SPI_PTR");
+                _SPI.setBitOrder(MSBFIRST);
+                _SPI.setDataMode(SPI_MODE0);
 
                 #if !defined(F_CPU) || F_CPU < 20000000
-    _SPI.setClockDivider(SPI_CLOCK_DIV2);
+                    _SPI.setClockDivider(SPI_CLOCK_DIV2);
                 #elif F_CPU < 40000000
-    _SPI.setClockDivider(SPI_CLOCK_DIV4);
+                    _SPI.setClockDivider(SPI_CLOCK_DIV4);
                 #elif F_CPU < 80000000
-    _SPI.setClockDivider(SPI_CLOCK_DIV8);
+                    _SPI.setClockDivider(SPI_CLOCK_DIV8);
                 #elif F_CPU < 160000000
-    _SPI.setClockDivider(SPI_CLOCK_DIV16);
+                    _SPI.setClockDivider(SPI_CLOCK_DIV16);
                 #elif F_CPU < 320000000
-    _SPI.setClockDivider(SPI_CLOCK_DIV32);
+                    _SPI.setClockDivider(SPI_CLOCK_DIV32);
                 #elif F_CPU < 640000000
-    _SPI.setClockDivider(SPI_CLOCK_DIV64);
+                    _SPI.setClockDivider(SPI_CLOCK_DIV64);
                 #elif F_CPU < 1280000000
-    _SPI.setClockDivider(SPI_CLOCK_DIV128);
+                    _SPI.setClockDivider(SPI_CLOCK_DIV128);
                 #else // F_CPU >= 1280000000
                     #error "Unsupported CPU frequency. Please set correct SPI divider."
                 #endif // F_CPU to SPI_CLOCK_DIV translation
@@ -87,13 +112,16 @@ void RF24::csn(bool mode)
         #endif // !defined(SOFTSPI)
 
     #elif defined (RF24_RPi)
-    if(!mode)
-        _SPI.chipSelect(csn_pin);
+        Serial.println("csn: RF24_RPi");
+        if(!mode)
+            _SPI.chipSelect(csn_pin);
+    #else
+        Serial.println("What in the goddamn fuck");
     #endif // defined(RF24_RPi)
 
     #if !defined(RF24_LINUX)
-    digitalWrite(csn_pin, mode);
-    delayMicroseconds(csDelay);
+        digitalWrite(csn_pin, mode);
+        delayMicroseconds(csDelay);
     #endif // !defined(RF24_LINUX)
 }
 
@@ -179,32 +207,35 @@ uint8_t RF24::read_register(uint8_t reg)
     uint8_t result;
 
     #if defined(RF24_LINUX)
-    beginTransaction();
+        beginTransaction();
 
-    uint8_t * prx = spi_rxbuff;
-    uint8_t * ptx = spi_txbuff;
-    *ptx++ = (R_REGISTER | reg);
-    *ptx++ = RF24_NOP ; // Dummy operation, just for reading
+        uint8_t * prx = spi_rxbuff;
+        uint8_t * ptx = spi_txbuff;
+        *ptx++ = (R_REGISTER | reg);
+        *ptx++ = RF24_NOP ; // Dummy operation, just for reading
 
-    _SPI.transfernb((char *)spi_txbuff, (char *)spi_rxbuff, 2);
-    status = *prx;     // status is 1st byte of receive buffer
-    result = *++prx;   // result is 2nd byte of receive buffer
+        _SPI.transfernb((char *)spi_txbuff, (char *)spi_rxbuff, 2);
+        status = *prx;     // status is 1st byte of receive buffer
+        result = *++prx;   // result is 2nd byte of receive buffer
 
-    endTransaction();
+        endTransaction();
+
     #else // !defined(RF24_LINUX)
+        beginTransaction();
+            #if defined (RF24_SPI_PTR)
+                status = _spi->transfer(R_REGISTER | reg);
+                result = _spi->transfer(0xff);
 
-    beginTransaction();
-        #if defined (RF24_SPI_PTR)
-    status = _spi->transfer(R_REGISTER | reg);
-    result = _spi->transfer(0xff);
+            #else // !defined(RF24_SPI_PTR)
+                status = _SPI.transfer(R_REGISTER | reg);
+                result = _SPI.transfer(0xff);
 
-        #else // !defined(RF24_SPI_PTR)
-    status = _SPI.transfer(R_REGISTER | reg);
-    result = _SPI.transfer(0xff);
-
-        #endif // !defined(RF24_SPI_PTR)
-    endTransaction();
+            #endif // !defined(RF24_SPI_PTR)
+        endTransaction();
     #endif // !defined(RF24_LINUX)
+
+    Serial.print("read_register: status = "); Serial.print(status);
+    Serial.print(", result = "); Serial.println(result);
 
     return result;
 }
@@ -491,6 +522,7 @@ RF24::RF24(uint16_t _cepin, uint16_t _cspin, uint32_t _spi_speed)
         :ce_pin(_cepin), csn_pin(_cspin), spi_speed(_spi_speed), payload_size(32), dynamic_payloads_enabled(true), addr_width(5), _is_p_variant(false),
          csDelay(5)
 {
+    #define DEEZNUTZ_AGAIN 1
     _init_obj();
 }
 
@@ -500,6 +532,7 @@ RF24::RF24(uint32_t _spi_speed)
         :ce_pin(0xFFFF), csn_pin(0xFFFF), spi_speed(_spi_speed), payload_size(32), dynamic_payloads_enabled(true), addr_width(5), _is_p_variant(false),
          csDelay(5)
 {
+    #define DEEZNUTZ_AGAIN 2
     _init_obj();
 }
 
@@ -510,9 +543,11 @@ void RF24::_init_obj()
     // Use a pointer on the Arduino platform
     #if defined (RF24_SPI_PTR)
         #if defined (SOFTSPI)
-    _spi = &spi;
+            #define DEEZNUTZ_LOL 1
+            _spi = &spi;
         #else  // !defined(SOFTSPI)
-    _spi = &SPI;
+            #define DEEZNUTZ_LOL 2
+            _spi = &SPI;
         #endif // !defined(SOFTSPI)
     #endif // defined (RF24_SPI_PTR)
 
@@ -758,6 +793,7 @@ void RF24::printPrettyDetails(void) {
 
 bool RF24::begin(_SPI* spiBus)
 {
+    Serial.println("deeeez spi bus nutz");
     _spi = spiBus;
     if (_init_pins())
         return _init_radio();
@@ -779,6 +815,7 @@ bool RF24::begin(_SPI* spiBus, uint16_t _cepin, uint16_t _cspin)
 
 bool RF24::begin(uint16_t _cepin, uint16_t _cspin)
 {
+    Serial.println("RF24::begin(ce, csn)");
     ce_pin = _cepin;
     csn_pin = _cspin;
     return begin();
@@ -788,35 +825,48 @@ bool RF24::begin(uint16_t _cepin, uint16_t _cspin)
 
 bool RF24::begin(void)
 {
+    Serial.print("DEEZNUTZ       = ");    Serial.println(DEEZNUTZ);
+    Serial.print("DEEZNUTZ_AGAIN = ");    Serial.println(DEEZNUTZ_AGAIN);
+    Serial.print("DEEZNUTZ_LOL   = ");    Serial.println(DEEZNUTZ_LOL);
+    Serial.print("SPI_HAS_TRANSACTION   = ");    Serial.println(SPI_HAS_TRANSACTION);
+    Serial.print("RF24_SPI_TRANSACTIONS = ");    Serial.println(RF24_SPI_TRANSACTIONS);
+    // Serial.print("WHAT_THE_FUCK   = ");    Serial.println(WHAT_THE_FUCK);
+    Serial.print("WHAT_THE_FUCKKK = ");    Serial.println(WHAT_THE_FUCKKK);
 
+    Serial.println("RF24::begin(void)");
     #if defined (RF24_LINUX)
+        Serial.println("RF24_LINUX");
         #if defined (RF24_RPi)
-    switch(csn_pin) {                 // Ensure valid hardware CS pin
-        case 0: break;
-        case 1: break;
-        // Allow BCM2835 enums for RPi
-        case 8: csn_pin = 0; break;
-        case 7: csn_pin = 1; break;
-        case 18: csn_pin = 10; break; // to make it work on SPI1
-        case 17: csn_pin = 11; break;
-        case 16: csn_pin = 12; break;
-        default: csn_pin = 0; break;
-    }
+            Serial.println("RF24_RPi");
+            switch(csn_pin) {                 // Ensure valid hardware CS pin
+                case 0: break;
+                case 1: break;
+                // Allow BCM2835 enums for RPi
+                case 8: csn_pin = 0; break;
+                case 7: csn_pin = 1; break;
+                case 18: csn_pin = 10; break; // to make it work on SPI1
+                case 17: csn_pin = 11; break;
+                case 16: csn_pin = 12; break;
+                default: csn_pin = 0; break;
+            }
         #endif // RF24_RPi
 
-    _SPI.begin(csn_pin, spi_speed);
+        _SPI.begin(csn_pin, spi_speed);
 
     #elif defined (XMEGA_D3)
-    _spi->begin(csn_pin);
+        Serial.println("XMEGA_D3");
+        _spi->begin(csn_pin);
 
     #else // using an Arduino platform || defined (LITTLEWIRE)
-
         #if defined (RF24_SPI_PTR)
-    _spi->begin();
-        #else  // !defined(RF24_SPI_PTR)
-    _SPI.begin();
-        #endif // !defined(RF24_SPI_PTR)
+            Serial.println("RF24_SPI_PTR");
+            _spi->begin();
 
+        #else  // !defined(RF24_SPI_PTR)
+            Serial.println("not RF24_SPI_PTR");
+            _SPI.begin();
+
+        #endif // !defined(RF24_SPI_PTR)
     #endif // !defined(XMEGA_D3) && !defined(RF24_LINUX)
 
     return _init_pins() && _init_radio();
@@ -826,7 +876,9 @@ bool RF24::begin(void)
 
 bool RF24::_init_pins()
 {
+    Serial.println("RF24::_init_pins");
     if (!isValid()) {
+        Serial.println("!isValid()");
         // didn't specify the CSN & CE pins to c'tor nor begin()
         return false;
     }
@@ -877,6 +929,7 @@ bool RF24::_init_pins()
 
 bool RF24::_init_radio()
 {
+    Serial.println("RF24::_init_radio");
     // Must allow the radio time to settle else configuration bits will not necessarily stick.
     // This is actually only required following power up but some settling time also appears to
     // be required after resets too. For full coverage, we'll always assume the worst.
@@ -901,8 +954,11 @@ bool RF24::_init_radio()
     _is_p_variant = before_toggle == after_toggle;
     if (after_toggle){
         if (_is_p_variant){
+            Serial.println("Is P variant");
             // module did not experience power-on-reset (#401)
             toggle_features();
+        } else {
+            Serial.println("Is NOT P variant");
         }
         // allow use of multicast parameter and dynamic payloads by default
         write_register(FEATURE, 0);
@@ -936,12 +992,22 @@ bool RF24::_init_radio()
     //      16-bit CRC (CRC required by auto-ack)
     // Do not write CE high so radio will remain in standby I mode
     // PTX should use only 22uA of power
+    Serial.print("write_register NRF_CONFIG = "); Serial.println( (_BV(EN_CRC) | _BV(CRCO)) );
     write_register(NRF_CONFIG, (_BV(EN_CRC) | _BV(CRCO)) );
+
     config_reg = read_register(NRF_CONFIG);
+    Serial.print("read_register NRF_CONFIG  = "); Serial.println( config_reg );
 
     powerUp();
 
     // if config is not set correctly then there was a bad response from module
+    Serial.println("RF24::_init_radio config check:");
+    Serial.print("config_reg    = "); Serial.println(config_reg);
+    Serial.print("(_BV(EN_CRC)  = "); Serial.println((_BV(EN_CRC)));
+    Serial.print("(_BV(CRCO)    = "); Serial.println((_BV(CRCO)));
+    Serial.print("(_BV(PWR_UP)  = "); Serial.println((_BV(PWR_UP)));
+    Serial.print("(_BV(EN_CRC) | _BV(CRCO) | _BV(PWR_UP)) = "); Serial.println((_BV(EN_CRC) | _BV(CRCO) | _BV(PWR_UP)));
+
     return config_reg == (_BV(EN_CRC) | _BV(CRCO) | _BV(PWR_UP)) ? true : false;
 }
 

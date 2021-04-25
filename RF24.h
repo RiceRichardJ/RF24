@@ -117,13 +117,13 @@ private:
     #endif
 
     #if defined (RF24_LINUX) || defined (XMEGA_D3) /* XMEGA can use SPI class */
-    SPI spi;
+        SPI spi;
     #endif // defined (RF24_LINUX) || defined (XMEGA_D3)
     #if defined (RF24_SPI_PTR)
-    _SPI* _spi;
+        _SPI* _spi;
     #endif // defined (RF24_SPI_PTR)
     #if defined (MRAA)
-    GPIO gpio;
+        GPIO gpio;
     #endif
 
     uint16_t ce_pin; /**< "Chip Enable" pin, activates the RX or TX role */
